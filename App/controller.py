@@ -26,15 +26,6 @@ def initCatalog():
 # ==============================================
 # Funciones para la carga de datos
 # ==============================================
-
-def loadData(catalog, file_size):
-    """
-    Carga los datos de los archivos
-    """
-    loadSightings(catalog, file_size)
-
-
-
 def loadSightings(catalog, file_size):
     """
     Carga los artistas del archivo
@@ -42,7 +33,8 @@ def loadSightings(catalog, file_size):
     artistsfile = cf.data_dir + 'UFOS-utf8-' + file_size + '.csv'
     input_file = csv.DictReader(open(artistsfile, encoding='utf-8'))
     for sighting in input_file:
-        pass
+        model.AddCitiesTreeREQ1(catalog, sighting)
+        #model.AddCitiesMapREQ1(catalog, sighting)
 
 
 

@@ -12,6 +12,7 @@ import controller
 from datetime import datetime, date
 from DISClib.ADT import list as lt
 from DISClib.ADT import stack
+from DISClib.ADT import orderedmap as om
 from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
 from time import process_time
@@ -28,6 +29,7 @@ def printMenu():
     print("-----------------------------------------")
     print("Opciones preliminares")
     print("1- Cargar datos")
+    print("3- Consulta Lab 8")
     print("-----------------------------------------")
     print("Requerimientos")
     print("10- Consultar Requerimiento 1")
@@ -50,7 +52,16 @@ def loadData(catalog, file_size):
     """
     Carga las obras en la estructura de datos
     """
-    controller.loadData(catalog, file_size)
+    controller.loadSightings(catalog, file_size)
+
+
+def printFirst(lst, num):
+    """
+    Imprime los primeros num elementos de la lista
+    """
+    for pos in range(1,num+1):
+        print(lt.getElement(lst, pos))
+        print("")
 
 
 def adjustlenght(text, step):
@@ -283,7 +294,17 @@ while True:
         running_time = (stop_time - start_time)*1000
         
         print("\nTiempo de carga: " + str(running_time) + " milisegundos")
+
         
+
+    elif int(inputs) == 3:
+        height = om.height(catalog["MapReq1.1"])
+        size = om.size(catalog["MapReq1.1"])
+
+        print("\n\nLa altura es: " + str(height))
+        print("El número de elementos (# de ciudades) es: " + str(size))
+
+
 
     #Requerimiento 1
     elif int(inputs) == 10:
