@@ -23,10 +23,10 @@ def newCatalog():
     """
     Inicializa el catálogo de avistamientos
     """
-    catalog = {"MapReq1.1": None,
-               "MapReq1.2": None,}
+    catalog = {"MapReq1.1": None,       #Estructura principal es un árbol binario
+               "MapReq1.2": None,}      #Estructura principal es un hashmap
 
-    catalog["MapReq1.1"] = om.newMap()
+    catalog["MapReq1.1"] = om.newMap(omaptype="RBT")
 
     catalog["MapReq1.2"] = mp.newMap(1000,
                                      maptype='PROBING',
