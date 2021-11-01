@@ -24,13 +24,16 @@ def newCatalog():
     Inicializa el catálogo de avistamientos
     """
     catalog = {"MapReq1.1": None,       #Estructura principal es un árbol binario
-               "MapReq1.2": None,}      #Estructura principal es un hashmap
+               "MapReq1.2": None,      #Estructura principal es un hashmap
+               "MapReq4": None}
 
     catalog["MapReq1.1"] = om.newMap(omaptype="RBT")
 
     catalog["MapReq1.2"] = mp.newMap(1000,
                                      maptype='PROBING',
                                      loadfactor=0.5)
+
+    catalog["MapReq4"] = om.newMap(omaptype="RBT")
     
     return catalog
 
@@ -44,7 +47,7 @@ def AddCitiesTreeREQ1(catalog, sighting):
     Crea un árbol cuyos nodos son de la forma 'key'= city , 'value'= árbol de avistamientos ordenados por datetime
     """
     CitiesTree = catalog["MapReq1.1"]
-    sighting_data = sightingDataREQ1(sighting)
+    sighting_data = sightingData(sighting)
     city = sighting["city"]
     entry = om.get(CitiesTree, city)
 
@@ -58,13 +61,12 @@ def AddCitiesTreeREQ1(catalog, sighting):
         om.put(city_info, sighting_data["datetime"], sighting_data)
 
 
-
 def AddCitiesMapREQ1(catalog, sighting):
     """
     Crea una tabla de hash de la forma 'key'= city , 'value'= árbol de avistamientos ordenados por datetime
     """
     CitiesMap = catalog["MapReq1.2"]
-    sighting_data = sightingDataREQ1(sighting)
+    sighting_data = sightingData(sighting)
     city = sighting["city"]
     exists_city= mp.contains(CitiesMap, city)
     
@@ -79,11 +81,29 @@ def AddCitiesMapREQ1(catalog, sighting):
         om.put(city_info, sighting_data["datetime"], sighting_data)
 
 
+def AddSightingsREQ4(catalog, sighting):
+    """
+    Crea un árbol cuyos nodos son de la forma 'key'= fecha, 'value'= lista de avistamientos
+    """
+    SightingsTree = catalog["MapReq4"]
+    sighting_data = sightingData(sighting)
+    date = datetime.strftime(sighting_data["datetime"], "%Y-%m-%d")
+    entry = om.get(SightingsTree, date)
+
+    if entry is None:           #Se crea la llave y la lista de avistamientos
+        date_info = lt.newList()
+        lt.addLast(date_info, sighting_data)
+        om.put(SightingsTree, date, date_info)
+
+    else:                       #Se añade el avistamiento en la fecha ya existente 
+        date_info = me.getValue(entry)
+        lt.addLast(date_info, sighting_data)
+
 
 # ==============================================
 # Funciones para creacion de datos
 # ==============================================
-def sightingDataREQ1(sighting):
+def sightingData(sighting):
     "Filtra la información relevante para el primer requerimiento"
     date_time = sighting["datetime"]
     date_time = datetime.strptime(date_time, '%Y-%m-%d %H:%M:%S')
@@ -155,7 +175,9 @@ def addLast(tree, lst, x):
 
 #Requerimiento 1
 def REQ1(catalog, city):
-    
+    """
+    Crea una lista con los primeros y últimos 3 avistamientos de una ciudad dada organizados según fecha
+    """
     CitiesMap = catalog["MapReq1.1"]
     city_entry = om.get(CitiesMap, city)
     sightings_tree = me.getValue(city_entry)
@@ -180,8 +202,33 @@ def REQ3(catalog):
 
 
 #Requerimiento 4
-def REQ4(catalog):
-    pass
+
+def REQ4(catalog, date_low, date_high):
+    """
+    Devuelve una lista con los avistamientos entre una fecha date_low y una fecha date_high
+    """
+    SightingsTree = catalog["MapReq4"]
+    sightings = om.values(SightingsTree, date_low, date_high) #Corresponde a una lista de listas
+    final_list = lt.newList("ARRAY_LIST")
+
+    sightings_size = lt.size(sightings)
+    pos = 1
+
+    while pos <= sightings_size: #El máximo de ciclos realizados es num_fechas
+        sublist = lt.getElement(sightings, pos)
+        sublist_size = lt.size(sublist)
+        i = 1
+
+        while i <= sublist_size: #El número de ciclos depende del número de avistamientos en la misma fecha
+            sighting = lt.getElement(sublist, i)
+            lt.addLast(final_list, sighting)
+            i += 1
+
+        pos += 1
+
+    num_sightings = lt.size(final_list)
+
+    return final_list, num_sightings
 
 
 #Requerimiento 5

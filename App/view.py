@@ -282,7 +282,7 @@ while True:
 
     if int(inputs) == 1:
         #file_size = input("Ingrese el sufijo del archivo que desea utilizar (small, large, 10pct...): ")
-        file_size = "large"
+        file_size = "small"
 
         #Cargar archivos
         print("\nCargando información de los archivos ....")
@@ -351,14 +351,19 @@ while True:
 
     #Requerimiento 4
     elif int(inputs) == 40:
+        date_low = "1945-08-06"
+        date_high = "1984-11-15"
 
         start_time = process_time()
-        #req4 = controller.REQ4(catalog)
+        req4, num_sightings = controller.REQ4(catalog, date_low, date_high)
         stop_time = process_time()
         running_time = (stop_time - start_time)*1000
 
         print("\n\n=============== Requerimiento Número 4 ===============")
-        #print("Tiempo de ejecución: " + str(running_time) + " milisegundos\n")
+        print("Tiempo de ejecución: " + str(running_time) + " milisegundos\n")
+
+        print("Hubo " + str(num_sightings) + " avistamientos en el rango")
+        #IMPRIMIR TABLA
 
 
 
