@@ -282,7 +282,7 @@ while True:
 
     if int(inputs) == 1:
         #file_size = input("Ingrese el sufijo del archivo que desea utilizar (small, large, 10pct...): ")
-        file_size = "small"
+        file_size = "large"
 
         #Cargar archivos
         print("\nCargando información de los archivos ....")
@@ -308,14 +308,18 @@ while True:
 
     #Requerimiento 1
     elif int(inputs) == 10:
+        city = input("\nIngrese el nombre de la ciudad a consultar: ")
 
         start_time = process_time()
-        #req1 = controller.REQ1(catalog)
+        req1, num_sightings = controller.REQ1(catalog, city)
         stop_time = process_time()
         running_time = (stop_time - start_time)*1000
 
         print("\n\n=============== Requerimiento Número 1 ===============")
-        #print("Tiempo de ejecución: " + str(running_time) + " milisegundos")
+        print("Tiempo de ejecución: " + str(running_time) + " milisegundos")
+
+        print("\nHubo " + str(num_sightings) + " avistamientos en la ciudad de '" + city + "'")
+        #IMPRIMIR TABLA
         
     
     

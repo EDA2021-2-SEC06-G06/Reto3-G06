@@ -445,7 +445,7 @@ def values(rbt, keylo, keyhi):
         Exception
     """
     try:
-        lstvalues = lt.newList('SINGLELINKED', rbt['cmpfunction'])
+        lstvalues = lt.newList('ARRAY_LIST', rbt['cmpfunction'])
         lstvalues = valuesRange(rbt['root'], keylo, keyhi, lstvalues,
                                 rbt['cmpfunction'])
         return lstvalues

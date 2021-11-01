@@ -52,6 +52,7 @@ def AddCitiesTreeREQ1(catalog, sighting):
         city_info = om.newMap()
         om.put(city_info, sighting_data["datetime"], sighting_data)
         om.put(CitiesTree, city, city_info)
+
     else:                       #Se añade el avistamiento en la ciudad ya existente 
         city_info = me.getValue(entry)
         om.put(city_info, sighting_data["datetime"], sighting_data)
@@ -100,10 +101,72 @@ def sightingDataREQ1(sighting):
 # ==============================================
 # Funciones de consulta
 # ==============================================
+def addFirst(tree, lst, x):
+    """
+    Añade los primeros "x" elementos de un árbol a una lista
+    Importante: "x" debe ser mayor que 1
+    """
+    tree_size = om.size(tree)
+    key_low = om.minKey(tree)
+
+    if tree_size >= x:  #Para asegurarse de no generar errores con ciudades de pocos avistamientos
+        key_high = om.select(tree, (x - 1))
+    else:
+        key_high = om.maxKey(tree)
+
+    elements = om.values(tree, key_low, key_high)
+    elements_size = lt.size(elements)
+
+    #Se añaden los elementos de la lista "elements" a la lista "lst"
+    pos = 1
+    while pos <= elements_size: #O(1) porque elements_size es siempre igual a "x", y el máximo "x" requerido es 5
+        sighting = lt.getElement(elements, pos) #O(1) porque "elements" es un ARRAY_LIST (modificación en rbt.py)
+        lt.addLast(lst, sighting)
+        pos += 1
+
+
+def addLast(tree, lst, x):
+    """
+    Añade los últimos "x" elementos de un árbol a una lista
+    Importante: "x" debe ser mayor que 1
+    """
+    tree_size = om.size(tree)
+
+    if tree_size >= 2*x:  #Para asegurarse de no generar errores con ciudades de pocos avistamientos
+        key_low = om.select(tree, (tree_size - x))
+        key_high = om.maxKey(tree)
+
+    elif tree_size>x and tree_size<2*x:
+        key_low = om.select(tree, x)
+        key_high = om.maxKey(tree) 
+
+    if tree_size>x:     #Para asegurarse de no repetir los elementos añadidos en addFirst()
+        elements = om.values(tree, key_low, key_high)
+        elements_size = lt.size(elements)
+
+        #Se añaden los elementos de la lista "elements" a la lista "lst"
+        pos = 1
+        while pos <= elements_size: #O(1) porque elements_size es siempre igual a "x", y el máximo "x" requerido es 5
+            sighting = lt.getElement(elements, pos) #O(1) porque "elements" es un ARRAY_LIST (modificación en rbt.py)
+            lt.addLast(lst, sighting)
+            pos += 1
+    
+
 
 #Requerimiento 1
-def REQ1(catalog):
-    pass
+def REQ1(catalog, city):
+    
+    CitiesMap = catalog["MapReq1.1"]
+    city_entry = om.get(CitiesMap, city)
+    sightings_tree = me.getValue(city_entry)
+
+    first_last_elem = lt.newList("ARRAYLIST")
+    num_sightings = om.size(sightings_tree)
+
+    addFirst(sightings_tree, first_last_elem, 3)
+    addLast(sightings_tree, first_last_elem, 3)
+
+    return first_last_elem, num_sightings
 
 
 #Requerimiento 2

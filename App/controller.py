@@ -23,6 +23,7 @@ def initCatalog():
     return catalog
 
 
+
 # ==============================================
 # Funciones para la carga de datos
 # ==============================================
@@ -43,8 +44,8 @@ def loadSightings(catalog, file_size):
 # ============================================
 
 #Requerimiento 1
-def REQ1(catalog):
-    return model.REQ1(catalog)
+def REQ1(catalog, city):
+    return model.REQ1(catalog, city)
 
 #Requerimiento 2
 def REQ2(catalog):
