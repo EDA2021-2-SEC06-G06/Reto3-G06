@@ -25,7 +25,8 @@ def newCatalog():
     """
     catalog = {"MapReq1.1": None,       #Estructura principal es un árbol binario
                "MapReq1.2": None,      #Estructura principal es un hashmap
-               "MapReq4": None}
+               "MapReq3": None,
+               "MapReq4": None,}
 
     catalog["MapReq1.1"] = om.newMap(omaptype="RBT")
 
@@ -33,6 +34,8 @@ def newCatalog():
                                      maptype='PROBING',
                                      loadfactor=0.5)
 
+    catalog["MapReq3"] = om.newMap(omaptype="RBT")
+    
     catalog["MapReq4"] = om.newMap(omaptype="RBT")
     
     return catalog
@@ -81,7 +84,27 @@ def AddCitiesMapREQ1(catalog, sighting):
         om.put(city_info, sighting_data["datetime"], sighting_data)
 
 
-def AddSightingsREQ4(catalog, sighting):
+def AddTimesREQ3(catalog, sighting):
+    """
+    Crea un árbol cuyos nodos son de la forma 'key'= HH:MM, 'value'= lista de avistamientos
+    """
+    SightingsTree = catalog["MapReq3"]
+    sighting_data = sightingData(sighting)
+    time = datetime.strftime(sighting_data["datetime"], "%H:%M")
+    entry = om.get(SightingsTree, time)
+    
+    if entry is None:           #Se crea la llave y la lista de avistamientos
+        time_info = om.newMap()
+        om.put(time_info, sighting_data["datetime"], sighting_data)
+        om.put(SightingsTree, time, time_info)
+
+    else:                       #Se añade el avistamiento en la hora:minuto ya existente 
+        time_info = me.getValue(entry)
+        om.put(time_info, sighting_data["datetime"], sighting_data)
+
+
+
+def AddDatesREQ4(catalog, sighting):
     """
     Crea un árbol cuyos nodos son de la forma 'key'= fecha, 'value'= lista de avistamientos
     """
@@ -197,12 +220,36 @@ def REQ2(catalog):
 
 
 #Requerimiento 3
-def REQ3(catalog):
-    pass
+def REQ3(catalog, time_low, time_high):
+    """
+    Devuelve una lista con los avistamientos entre una hora time_low y una hora time_high
+    """
+    SightingsTree = catalog["MapReq3"]
+    sightings = om.values(SightingsTree, time_low, time_high) #Corresponde a una lista de árboles
+    final_list = lt.newList("ARRAY_LIST")
+    
+    sightings_size = lt.size(sightings)
+    pos = 1
+
+    while pos <= sightings_size: #El máximo de ciclos realizados es num_parejas_hora_minuto
+        subtree = lt.getElement(sightings, pos)
+        sublist = om.valueSet(subtree)
+        sublist_size = lt.size(sublist)
+        i = 1
+
+        while i <= sublist_size: #El número de ciclos depende del número de avistamientos en la misma hora:minuto
+            sighting = lt.getElement(sublist, i)
+            lt.addLast(final_list, sighting)
+            i += 1
+
+        pos += 1
+
+    num_sightings = lt.size(final_list)
+
+    return final_list, num_sightings
 
 
 #Requerimiento 4
-
 def REQ4(catalog, date_low, date_high):
     """
     Devuelve una lista con los avistamientos entre una fecha date_low y una fecha date_high

@@ -294,7 +294,7 @@ while True:
         running_time = (stop_time - start_time)*1000
         
         print("\nTiempo de carga: " + str(running_time) + " milisegundos")
-
+        
         
 
     elif int(inputs) == 3:
@@ -338,14 +338,18 @@ while True:
         
     #Requerimiento 3
     elif int(inputs) == 30:
+        time_low = "20:45"
+        time_high = "23:15"
 
         start_time = process_time()
-        #req3 = controller.REQ3(catalog)
+        req3, num_sightings = controller.REQ3(catalog, time_low, time_high)
         stop_time = process_time()
         running_time = (stop_time - start_time)*1000
 
         print("\n\n=============== Requerimiento Número 3 ===============")
-        #print("Tiempo de ejecución: " + str(running_time) + " milisegundos")
+        print("Tiempo de ejecución: " + str(running_time) + " milisegundos")
+
+        print("Hubo " + str(num_sightings) + " avistamientos entre las " + time_low + " y las " + time_high)
 
     
 
@@ -362,7 +366,7 @@ while True:
         print("\n\n=============== Requerimiento Número 4 ===============")
         print("Tiempo de ejecución: " + str(running_time) + " milisegundos\n")
 
-        print("Hubo " + str(num_sightings) + " avistamientos en el rango")
+        print("Hubo " + str(num_sightings) + " avistamientos entre " + date_low + " y " + date_high)
         #IMPRIMIR TABLA
 
 
