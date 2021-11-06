@@ -35,6 +35,7 @@ def loadSightings(catalog, file_size):
     for sighting in input_file:
         model.AddCitiesTreeREQ1(catalog, sighting)
         #model.AddCitiesMapREQ1(catalog, sighting)
+        model.AddDurationTreeREQ2(catalog, sighting)
 
 
 
@@ -47,8 +48,8 @@ def REQ1(catalog):
     return model.REQ1(catalog)
 
 #Requerimiento 2
-def REQ2(catalog):
-    return model.REQ2(catalog)
+def REQ2(catalog, timeInitial, timeFinal):
+    return model.REQ2(catalog, timeInitial, timeFinal)
 
 #Requerimiento 3
 def REQ3(catalog,Name):

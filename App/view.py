@@ -119,37 +119,37 @@ def printReq1Table(lst):
     print(tabulate(table, headers, tablefmt="grid"))
 
 
-def printReq2Table(lst):
+def printReq2Table(lstMin, lstMax):
     """
     Imprime la tabla del Requerimiento 2
     """
-    headers = ['Title','ArtistsNames',"DateAcquired","Medium","Dimensions"]
+    headers = ['Date and Time','Country-City',"Duration (seconds)","Shape"]
     table = []
 
-    if lt.size(lst)>=3:
+    if lt.size(lstMin)>=3:
         for pos in range(1,4):
-            lista = lt.getElement(lst, pos)
-            c1 = adjustlenght(lista["Title"], 25)
-            c2 = adjustlenght(lista["ArtistsNames"], 18)
-            c3 = adjustlenght(lista["DateAcquired"], 15)
-            c4 = adjustlenght(lista["Medium"], 15)
-            c5 = adjustlenght(lista["Dimensions"], 15)
+            lista = lt.getElement(lstMin, pos)
+            ListaF=lt.getElement(lista,1)
+            c1 = adjustlenght(lt.getElement(ListaF,1), 25)
+            c2 = adjustlenght(lt.getElement(ListaF,2), 18)
+            c3 = adjustlenght(lt.getElement(ListaF,3), 15)
+            c4 = adjustlenght(lt.getElement(ListaF,4), 15)
             
 
-            table.append([c1,c2,c3,c4,c5])
+            table.append([c1,c2,c3,c4])
      
 
         for x in range(2, -1,-1):
-            pos = lt.size(lst) - x
-            lista = lt.getElement(lst, pos)
-            c1 = adjustlenght(lista["Title"], 25)
-            c2 = adjustlenght(lista["ArtistsNames"], 18)
-            c3 = adjustlenght(lista["DateAcquired"], 15)
-            c4 = adjustlenght(lista["Medium"], 15)
-            c5 = adjustlenght(lista["Dimensions"], 15)
+            pos = lt.size(lstMax) - x
+            lista = lt.getElement(lstMax, pos)
+            ListaF=lt.getElement(lista,1)
+            c1 = adjustlenght(lt.getElement(ListaF,1), 25)
+            c2 = adjustlenght(lt.getElement(ListaF,2), 18)
+            c3 = adjustlenght(lt.getElement(ListaF,3), 15)
+            c4 = adjustlenght(lt.getElement(ListaF,4), 15)
         
 
-            table.append([c1,c2,c3,c4,c5])
+            table.append([c1,c2,c3,c4])
 
     print(tabulate(table, headers, tablefmt="grid"))
 
@@ -282,7 +282,7 @@ while True:
 
     if int(inputs) == 1:
         #file_size = input("Ingrese el sufijo del archivo que desea utilizar (small, large, 10pct...): ")
-        file_size = "small"
+        file_size = "large"
 
         #Cargar archivos
         print("\nCargando información de los archivos ....")
@@ -321,15 +321,18 @@ while True:
     
     #Requerimiento 2
     elif int(inputs) == 20:
-
+        timeInitial = float(input("Por favor ingrese el limite inferior en segundos: "))
+        timeFinal = float(input("Por favor ingrese el limite superior en segundos: "))
         start_time = process_time()
-        #req2 = controller.REQ2(catalog)
+        NumberOfSightingsMax, ListMin, ListMax, TimeMax = controller.REQ2(catalog, timeInitial, timeFinal)
         stop_time = process_time()
         running_time = (stop_time - start_time)*1000
         
         print("\n\n=============== Requerimiento Número 2 ===============")
-        #print("Tiempo de ejecución: " + str(running_time) + " milisegundos")
-
+        print("Tiempo de ejecución: " + str(running_time) + " milisegundos")
+        print("\n Se registraron un total de "+str(NumberOfSightingsMax)+ " avistamientos con duracion de "+str(TimeMax)+" segundos")
+        print("A continuacion se mostrar la informacion de los tres primeros y tres últimos avistamientos dentro del rango, ordenados cronológicamente")
+        printReq2Table(ListMin, ListMax)
     
         
     #Requerimiento 3
