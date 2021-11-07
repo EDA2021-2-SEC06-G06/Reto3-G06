@@ -27,8 +27,9 @@ def newCatalog():
     catalog = {"MapReq1.1": None,       #Estructura principal es un árbol binario
                "MapReq1.2": None,      #Estructura principal es un hashmap
                "MapReq3": None,
-               "MapReq4": None,
-               "MapReq2.1": None}      #Estructura principal es un hashmap
+               "MapReq4": None,        #Estructura principal es un hashmap
+               "MapReq2.1": None,
+               "MapReq5": None}      
 
     catalog["MapReq1.1"] = om.newMap(omaptype="RBT")
 
@@ -40,6 +41,7 @@ def newCatalog():
     
     catalog["MapReq4"] = om.newMap(omaptype="RBT")
     catalog["MapReq2.1"] = om.newMap(omaptype="RBT")
+    catalog["MapReq5"] = om.newMap(omaptype="RBT")
    
     
     return catalog
@@ -155,7 +157,32 @@ def AddDurationTreeREQ2(catalog, sighting):
             DataInThisCase=DataNecessaryREQ2(sighting, Country_City)
             lt.addLast(CountryInfo, DataInThisCase)
        
-
+def AddLongitudeREQ5(catalog, sighting):
+    TreeOfLongitud_L=catalog["MapReq5"]
+    LongitudeWRound=float(sighting["longitude"])
+    Longitude=round(LongitudeWRound, 2)
+    LatitudeWRound=float(sighting["latitude"])
+    Latitude=round(LatitudeWRound, 2)
+    EntryLongitude=om.get(TreeOfLongitud_L,Longitude)
+    if EntryLongitude is None:
+        LatitudInfo=om.newMap(omaptype="RBT")
+        ListOfData = lt.newList("ARRAY_LIST")
+        ListOfDataNecessary = DataNecessaryREQ5(sighting, Longitude, Latitude)
+        lt.addLast(ListOfData, ListOfDataNecessary)
+        om.put(LatitudInfo, Latitude, ListOfData)
+        om.put(TreeOfLongitud_L, Longitude, LatitudInfo)
+    else:
+        LatitudeTree= me.getValue(EntryLongitude)
+        EntryLatitude = om.get(LatitudeTree, Latitude)
+        if EntryLatitude is None:
+            ListOfData = lt.newList("ARRAY_LIST")
+            ListOfDataNecessary=DataNecessaryREQ5(sighting, Longitude, Latitude)
+            lt.addLast(ListOfData, ListOfDataNecessary)
+            om.put(LatitudeTree, Latitude, ListOfData)
+        else:
+            LatitudeDataList = me.getValue(EntryLatitude)
+            DataInthisCase = DataNecessaryREQ5(sighting, Longitude, Latitude)
+            lt.addLast(LatitudeDataList, DataInthisCase)
 
 # ==============================================
 # Funciones para creacion de datos
@@ -180,6 +207,19 @@ def DataNecessaryREQ2(sighting, Country_City):
     lt.addLast(ListFinalREQ2, sighting["duration (seconds)"])
     lt.addLast(ListFinalREQ2, sighting["shape"])
     return ListFinalREQ2
+
+def DataNecessaryREQ5(sighting, Longitude, Latitude):
+    City = sighting["city"]
+    Country = sighting["country"]
+    City_Country = City+"-"+Country
+    ListFinalREQ5 = lt.newList("ARRAY_LIST")
+    lt.addLast(ListFinalREQ5, sighting["datetime"])
+    lt.addLast(ListFinalREQ5, City_Country)
+    lt.addLast(ListFinalREQ5, sighting["duration (seconds)"])
+    lt.addLast(ListFinalREQ5, sighting["shape"])
+    lt.addLast(ListFinalREQ5, Longitude)
+    lt.addLast(ListFinalREQ5, Latitude)
+    return ListFinalREQ5
 # ==============================================
 # Funciones de consulta
 # ==============================================

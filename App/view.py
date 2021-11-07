@@ -376,7 +376,10 @@ while True:
 
     #Requerimiento 5
     elif int(inputs) == 50:
-
+        LongitudeInitial = float(input("Por favor ingrese la longitud inicial con dos cifras decimales"))
+        LongitudeFinal = float(input("Por favor ingrese la longitud final con dos cifras decimales"))
+        LatitudeInitial = float(input("Por favor ingrese la latitud inicial con dos cifras decimales"))
+        LatitudeFinal = float(input("Por favor ingrese la latitud final con dos cifras decimales"))
         start_time = process_time()
         #req5 = controller.REQ5(catalog)
         stop_time = process_time()
