@@ -63,5 +63,5 @@ def REQ4(catalog, date_low, date_high):
     return model.REQ4(catalog, date_low, date_high)
 
 #Requerimiento 5
-def REQ5(catalog, longitudeInital, LongitudeFinal, LatitudeInitial, LatitudeFinal):
-    return model.REQ5(catalog)
+def REQ5(catalog, longitudeInitial, LongitudeFinal, LatitudeInitial, LatitudeFinal):
+    return model.REQ5(catalog, longitudeInitial, LongitudeFinal, LatitudeInitial, LatitudeFinal)

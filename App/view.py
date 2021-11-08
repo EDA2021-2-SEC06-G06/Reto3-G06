@@ -376,17 +376,22 @@ while True:
 
     #Requerimiento 5
     elif int(inputs) == 50:
-        LongitudeInitial = float(input("Por favor ingrese la longitud inicial con dos cifras decimales"))
-        LongitudeFinal = float(input("Por favor ingrese la longitud final con dos cifras decimales"))
-        LatitudeInitial = float(input("Por favor ingrese la latitud inicial con dos cifras decimales"))
-        LatitudeFinal = float(input("Por favor ingrese la latitud final con dos cifras decimales"))
+        LongitudeInitial = -109.03
+        LongitudeFinal = 45.00
+        LatitudeInitial = -92.15
+        LatitudeFinal = 120.00
+        #LongitudeInitial = float(input("Por favor ingrese la longitud inicial con dos cifras decimales: "))
+        #LongitudeFinal = float(input("Por favor ingrese la longitud final con dos cifras decimales: "))
+        #LatitudeInitial = float(input("Por favor ingrese la latitud inicial con dos cifras decimales: "))
+        #LatitudeFinal = float(input("Por favor ingrese la latitud final con dos cifras decimales: "))
         start_time = process_time()
-        #req5 = controller.REQ5(catalog)
+        NumberOfSightings, ListFinal = controller.REQ5(catalog, LongitudeInitial, LongitudeFinal, LatitudeInitial, LatitudeFinal)
         stop_time = process_time()
         running_time = (stop_time - start_time)*1000
 
         print("\n\n=============== Requerimiento Número 5 ===============")
-        #print("Tiempo de ejecución: " + str(running_time) + " milisegundos\n")
+        print("Tiempo de ejecución: " + str(running_time) + " milisegundos\n")
+        print("Se encontraron "+str(NumberOfSightings)+ " avistamientos dentro del area definida")
 
 
 

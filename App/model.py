@@ -6,6 +6,7 @@ Daniel Hernández Pineda
 
  """
 
+
 import config as cf
 from datetime import datetime
 from DISClib.ADT import stack
@@ -369,8 +370,32 @@ def REQ4(catalog, date_low, date_high):
 
 
 #Requerimiento 5
-def REQ5(catalog):
-    pass
+def REQ5(catalog, longitudeInitial, LongitudeFinal, LatitudeInitial, LatitudeFinal):   #Falta ordenar poor latitud
+    pos=1
+    ListFinal=lt.newList("ARRAY_LIST")
+    TreeOfLongitude = catalog["MapReq5"]
+    ListOfLatitudeR= om.values(TreeOfLongitude, longitudeInitial, LongitudeFinal)
+    while pos<=lt.size(ListOfLatitudeR):
+        latitude = lt.getElement(ListOfLatitudeR, pos)
+        for keyAtMoment in lt.iterator(om.keySet(latitude)):                  #Esto es O(1) Solo hay un key
+            if keyAtMoment>=LatitudeInitial and keyAtMoment<=LatitudeFinal:
+                EntryLatitude= om.get(latitude, keyAtMoment)
+                DataFinal = me.getValue(EntryLatitude)
+                i=1
+                if lt.size(DataFinal)>1:
+                    while i<=lt.size(DataFinal):
+                        Element=lt.getElement(DataFinal, i)
+                        lt.addLast(ListFinal, Element)
+                        i+=1
+                
+                else:
+                    Element=lt.getElement(DataFinal, 1)
+                    lt.addLast(ListFinal, Element)
+            
+
+        pos+=1
+    NumberOfSightings = lt.size(ListFinal)
+    return NumberOfSightings, ListFinal
 
 
 
