@@ -275,7 +275,11 @@ def REQ1(catalog, city):
 
 #Requerimiento 2
 def REQ2(catalog, timeInitial, timeFinal):
+    i=1
+    k=1
     TreeOfDuration = catalog["MapReq2.1"]
+    TreeFinalMin = om.newMap(omaptype="RBT")
+    TreeFinalMax = om.newMap(omaptype="RBT")
     FloorDurationmax = om.floor(TreeOfDuration, timeFinal)            #Se halla rango minimo
     FloorDurationMin = om.floor(TreeOfDuration,timeInitial)           #Se halla rango maximo
     Entrymax = om.get(TreeOfDuration, FloorDurationmax)
@@ -286,7 +290,30 @@ def REQ2(catalog, timeInitial, timeFinal):
     #Obtener lista con datos minimos y maximos
     DataMin = re.inorder(ValueMinDuration)                         #Se recorre en orden
     DataMax = re.inorder(ValueMaxDuration)
-    return NumberOfSightingsMax, DataMin, DataMax, FloorDurationmax
+    while i<=lt.size(DataMin):
+        Data= lt.getElement(DataMin, i)
+        ListWithData = lt.newList("ARRAY_LIST")
+        SubList = lt.getElement(Data, 1)
+        lt.addLast(ListWithData, lt.getElement(SubList, 1))
+        lt.addLast(ListWithData, lt.getElement(SubList, 2))
+        lt.addLast(ListWithData, lt.getElement(SubList, 3))
+        lt.addLast(ListWithData, lt.getElement(SubList, 4))
+        om.put(TreeFinalMin, lt.getElement(SubList, 1), ListWithData)
+        i+=1
+    while k<=lt.size(DataMax):
+        Data= lt.getElement(DataMax, k)
+        SubList = lt.getElement(Data, 1)
+        ListWithData = lt.newList("ARRAY_LIST")
+        lt.addLast(ListWithData, lt.getElement(SubList, 1))
+        lt.addLast(ListWithData, lt.getElement(SubList, 2))
+        lt.addLast(ListWithData, lt.getElement(SubList, 3))
+        lt.addLast(ListWithData, lt.getElement(SubList, 4))
+        om.put(TreeFinalMax, lt.getElement(SubList, 1), ListWithData)
+        k+=1
+    DataMinF = re.inorder(TreeFinalMin)                         #Se recorre en orden
+    DataMaxF = re.inorder(TreeFinalMax)
+
+    return NumberOfSightingsMax, DataMinF, DataMaxF, FloorDurationmax
 
 
 #Requerimiento 3

@@ -107,12 +107,11 @@ def printReq2Table(lstMin, lstMax):
 
     if lt.size(lstMin)>=3:
         for pos in range(1,4):
-            lista = lt.getElement(lstMin, pos)
-            ListaF=lt.getElement(lista,1)
-            c1 = adjustlenght(lt.getElement(ListaF,1), 25)
-            c2 = adjustlenght(lt.getElement(ListaF,2), 18)
-            c3 = adjustlenght(lt.getElement(ListaF,3), 15)
-            c4 = adjustlenght(lt.getElement(ListaF,4), 15)
+            Lista = lt.getElement(lstMin, pos)
+            c1 = adjustlenght(lt.getElement(Lista,1), 25)
+            c2 = adjustlenght(lt.getElement(Lista,2), 18)
+            c3 = adjustlenght(lt.getElement(Lista,3), 15)
+            c4 = adjustlenght(lt.getElement(Lista,4), 15)
             
 
             table.append([c1,c2,c3,c4])
@@ -120,12 +119,11 @@ def printReq2Table(lstMin, lstMax):
 
         for x in range(2, -1,-1):
             pos = lt.size(lstMax) - x
-            lista = lt.getElement(lstMax, pos)
-            ListaF=lt.getElement(lista,1)
-            c1 = adjustlenght(lt.getElement(ListaF,1), 25)
-            c2 = adjustlenght(lt.getElement(ListaF,2), 18)
-            c3 = adjustlenght(lt.getElement(ListaF,3), 15)
-            c4 = adjustlenght(lt.getElement(ListaF,4), 15)
+            Lista = lt.getElement(lstMax, pos)
+            c1 = adjustlenght(lt.getElement(Lista,1), 25)
+            c2 = adjustlenght(lt.getElement(Lista,2), 18)
+            c3 = adjustlenght(lt.getElement(Lista,3), 15)
+            c4 = adjustlenght(lt.getElement(Lista,4), 15)
         
 
             table.append([c1,c2,c3,c4])
