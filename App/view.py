@@ -81,39 +81,18 @@ def printReq1Table(lst):
     """
     #Imprime la tabla del Requerimiento 1
     """
-    headers = ["Name", "BeginDate", "EndDate", "Nationality", "Gender"]
+    headers = ["datetime", "city", "country", "shape", "duration (seconds)"]
     table = []
+    size = lt.size(lst)
 
-    for pos in range(1,4):
-        artist = lt.getElement(lst, pos)
-        c1 = artist["Name"]
-        c2 = artist["BeginDate"]
-        c3 = artist["EndDate"]
-        c4 = artist["Nationality"]
-        if c4 == "0":
-            c4 = "--"
-        c5 = artist["Gender"]
-        if c5 == "":
-            c5 = "--"
-
-        table.append([c1,c2,c3,c4,c5])
-     
-
-    for x in range(2, -1,-1):
-        pos = lt.size(lst) - x
-        artist = lt.getElement(lst, pos)      
-        c1 = artist["Name"]
-        c2 = artist["BeginDate"]
-        c3 = artist["EndDate"]
-        if c3 == "0":
-            c3 = "--"
-        c4 = artist["Nationality"]
-        if c4 == "":
-            c4 = "--"
-        c5 = artist["Gender"]
-        if c5 == "":
-            c5 = "--"
-
+    for pos in range(1, size+1):
+        sighting = lt.getElement(lst, pos)
+        c1 = sighting["datetime"]
+        c2 = sighting["city"]
+        c3 = sighting["country"]
+        c4 = sighting["shape"]
+        c5 = sighting["duration (seconds)"]
+        
         table.append([c1,c2,c3,c4,c5])
 
     print(tabulate(table, headers, tablefmt="grid"))
@@ -154,83 +133,77 @@ def printReq2Table(lstMin, lstMax):
     print(tabulate(table, headers, tablefmt="grid"))
 
 
-def printReq3Table(lst):
+def printReq3Table(lst_min, lst_max):
     """
     #Imprime la tabla del Requerimiento 3
     """
-    headers=['Title',"Date","Medium","Dimensions"]
+    headers = ["datetime", "city", "country", "shape", "duration (seconds)"]
     table=[]
-    if lt.size(lst)>=3:
+    size = lt.size(lst_min) + lt.size(lst_max)
+
+    if size>=3:
         for pos in range(1,4):
-            lista = lt.getElement(lst, pos)
-            c1 = adjustlenght(lt.getElement(lista, 1), 18)
-            c2 = adjustlenght(lt.getElement(lista, 2), 12)
-            c3 = adjustlenght(lt.getElement(lista, 3), 18)
-            c4 = adjustlenght(lt.getElement(lista, 4), 18)
-            table.append([c1,c2,c3,c4])
+            sighting = lt.getElement(lst_min, pos)
+            c1 = sighting["datetime"]
+            c2 = sighting["city"]
+            c3 = sighting["country"]
+            c4 = sighting["shape"]
+            c5 = sighting["duration (seconds)"]
+            table.append([c1,c2,c3,c4,c5])
         
-        for x in range(2, -1,-1):
-            pos = lt.size(lst) - x
-            lista = lt.getElement(lst, pos)
-            c1 = adjustlenght(lt.getElement(lista, 1), 18)
-            c2 = adjustlenght(lt.getElement(lista, 2), 12)
-            c3 = adjustlenght(lt.getElement(lista, 3), 18)
-            c4 = adjustlenght(lt.getElement(lista, 4), 18)
-            table.append([c1,c2,c3,c4])
+        for pos in range(1,4):
+            sighting = lt.getElement(lst_max, pos)
+            c1 = sighting["datetime"]
+            c2 = sighting["city"]
+            c3 = sighting["country"]
+            c4 = sighting["shape"]
+            c5 = sighting["duration (seconds)"]
+            table.append([c1,c2,c3,c4,c5])
+
+
+    else:
+        for pos in range(1, lt.size(lst_min)+1):
+            sighting = lt.getElement(lst_min, pos)
+            c1 = sighting["datetime"]
+            c2 = sighting["city"]
+            c3 = sighting["country"]
+            c4 = sighting["shape"]
+            c5 = sighting["duration (seconds)"]
+            table.append([c1,c2,c3,c4,c5])
+
 
     print(tabulate(table, headers, tablefmt="grid"))
 
 
-def printReq4Table(nationalities_list, artworks_list):
+def printReq4Table(lst):
     """
     Imprime las tablas del Requerimiento 4
     """
-    headers1 = ["Nationality", "ArtWorks"]
-    headers2 = ['ObjectID','Title','ArtistsNames',"Date","Medium","Dimensions"]
-    table1 = []
-    table2 = []
+    headers = ["datetime", "city", "country", "shape", "duration (seconds)"]
+    table = []
 
-    head_tuple = lt.getElement(nationalities_list, 1)
-    country_head = head_tuple[0]
-    num_head = head_tuple[1]
-    table1.append([country_head, num_head])
-
-    #Tabla 1
-    for pos in range(2,11):
-        nationality_tuple = lt.getElement(nationalities_list, pos)
-        country = nationality_tuple[0]
-        num = nationality_tuple[1]
-        table1.append([country, num])
-
-    #Tabla 2 (primeros elementos)
+    #Primeros elementos
     for pos in range(1,4):
-        artwork_info = lt.getElement(artworks_list, pos)
-        c1 = adjustlenght(artwork_info["ObjectID"], 8)
-        c2 = adjustlenght(artwork_info["Title"], 20)
-        c3 = adjustlenght(artwork_info["ArtistsNames"], 30)
-        c4 = artwork_info["Date"]
-        c5 = adjustlenght(artwork_info["Medium"], 25)
-        c6 = adjustlenght(artwork_info["Dimensions"], 15)
-        table2.append([c1,c2,c3,c4,c5,c6])
+        sighting = lt.getElement(lst, pos)
+        c1 = sighting["datetime"]
+        c2 = sighting["city"]
+        c3 = sighting["country"]
+        c4 = sighting["shape"]
+        c5 = sighting["duration (seconds)"]
+        table.append([c1,c2,c3,c4,c5])
 
-    #Tabla 2 (últimos elementos)
+    #Últimos elementos
     for x in range(2, -1,-1):
-        pos = lt.size(artworks_list) - x
-        artwork_info = lt.getElement(artworks_list, pos)
-        c1 = adjustlenght(artwork_info["ObjectID"], 8)
-        c2 = adjustlenght(artwork_info["Title"], 20)
-        c3 = adjustlenght(artwork_info["ArtistsNames"], 30)
-        c4 = artwork_info["Date"]
-        c5 = adjustlenght(artwork_info["Medium"], 25)
-        c6 = adjustlenght(artwork_info["Dimensions"], 15)
-        table2.append([c1,c2,c3,c4,c5,c6])
+        pos = lt.size(lst) - x
+        sighting = lt.getElement(lst, pos)
+        c1 = sighting["datetime"]
+        c2 = sighting["city"]
+        c3 = sighting["country"]
+        c4 = sighting["shape"]
+        c5 = sighting["duration (seconds)"]
+        table.append([c1,c2,c3,c4,c5])
 
-    print(tabulate(table1, headers1, tablefmt="grid"))
-
-    print("\nLa nacionalidad con autores de más obras es: " + country_head + " con " + str(num_head) + " piezas únicas.")
-    print("\nLas primeras y últimas 3 obras en la lista (ordenadas por fecha de adquisición) son:")
-    print("(se recomienda ampliar la vista de la Terminal para observar mejor la tabla)")
-    print(tabulate(table2, headers2, tablefmt="grid"))
+    print(tabulate(table, headers, tablefmt="grid"))
 
 
 def printReq5Table(most_expensive, oldest):
@@ -282,7 +255,7 @@ while True:
 
     if int(inputs) == 1:
         #file_size = input("Ingrese el sufijo del archivo que desea utilizar (small, large, 10pct...): ")
-        file_size = "large"
+        file_size = "small"
 
         #Cargar archivos
         print("\nCargando información de los archivos ....")
@@ -319,7 +292,7 @@ while True:
         print("Tiempo de ejecución: " + str(running_time) + " milisegundos")
 
         print("\nHubo " + str(num_sightings) + " avistamientos en la ciudad de '" + city + "'")
-        #IMPRIMIR TABLA
+        printReq1Table(req1)
         
     
     
@@ -338,6 +311,7 @@ while True:
         print("A continuacion se mostrar la informacion de los tres primeros y tres últimos avistamientos dentro del rango, ordenados cronológicamente")
         printReq2Table(ListMin, ListMax)
     
+
         
     #Requerimiento 3
     elif int(inputs) == 30:
@@ -345,14 +319,15 @@ while True:
         time_high = "23:15"
 
         start_time = process_time()
-        req3, num_sightings = controller.REQ3(catalog, time_low, time_high)
+        req3_min, req3_max, num_sightings = controller.REQ3(catalog, time_low, time_high)
         stop_time = process_time()
         running_time = (stop_time - start_time)*1000
 
         print("\n\n=============== Requerimiento Número 3 ===============")
         print("Tiempo de ejecución: " + str(running_time) + " milisegundos")
 
-        print("Hubo " + str(num_sightings) + " avistamientos entre las " + time_low + " y las " + time_high)
+        print("\nHubo " + str(num_sightings) + " avistamientos entre las " + time_low + " y las " + time_high)
+        printReq3Table(req3_min, req3_max)
 
     
 
@@ -370,7 +345,7 @@ while True:
         print("Tiempo de ejecución: " + str(running_time) + " milisegundos\n")
 
         print("Hubo " + str(num_sightings) + " avistamientos entre " + date_low + " y " + date_high)
-        #IMPRIMIR TABLA
+        printReq4Table(req4)
 
 
 

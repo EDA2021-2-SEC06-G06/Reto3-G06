@@ -110,7 +110,6 @@ def AddTimesREQ3(catalog, sighting):
         om.put(time_info, sighting_data["datetime"], sighting_data)
 
 
-
 def AddDatesREQ4(catalog, sighting):
     """
     Crea un árbol cuyos nodos son de la forma 'key'= fecha, 'value'= lista de avistamientos
@@ -128,6 +127,8 @@ def AddDatesREQ4(catalog, sighting):
     else:                       #Se añade el avistamiento en la fecha ya existente 
         date_info = me.getValue(entry)
         lt.addLast(date_info, sighting_data)
+
+
 def AddDurationTreeREQ2(catalog, sighting):
     """
     Se crea un árbol cuyos nodos son de la forma 'key'= duration , 'value'= arbol con key= Country-City, value= informacion necesaria en lista de listas
@@ -158,6 +159,7 @@ def AddDurationTreeREQ2(catalog, sighting):
             DataInThisCase=DataNecessaryREQ2(sighting, Country_City)
             lt.addLast(CountryInfo, DataInThisCase)
        
+
 def AddLongitudeREQ5(catalog, sighting):
     TreeOfLongitud_L=catalog["MapReq5"]
     LongitudeWRound=float(sighting["longitude"])
@@ -185,6 +187,8 @@ def AddLongitudeREQ5(catalog, sighting):
             DataInthisCase = DataNecessaryREQ5(sighting, Longitude, Latitude)
             lt.addLast(LatitudeDataList, DataInthisCase)
 
+
+
 # ==============================================
 # Funciones para creacion de datos
 # ==============================================
@@ -201,6 +205,7 @@ def sightingData(sighting):
 
     return sighting_data
 
+
 def DataNecessaryREQ2(sighting, Country_City):
     ListFinalREQ2 = lt.newList("ARRAY_LIST")
     lt.addLast(ListFinalREQ2, sighting["datetime"])
@@ -208,6 +213,7 @@ def DataNecessaryREQ2(sighting, Country_City):
     lt.addLast(ListFinalREQ2, sighting["duration (seconds)"])
     lt.addLast(ListFinalREQ2, sighting["shape"])
     return ListFinalREQ2
+
 
 def DataNecessaryREQ5(sighting, Longitude, Latitude):
     City = sighting["city"]
@@ -221,6 +227,9 @@ def DataNecessaryREQ5(sighting, Longitude, Latitude):
     lt.addLast(ListFinalREQ5, Longitude)
     lt.addLast(ListFinalREQ5, Latitude)
     return ListFinalREQ5
+
+
+
 # ==============================================
 # Funciones de consulta
 # ==============================================
@@ -317,7 +326,8 @@ def REQ3(catalog, time_low, time_high):
     """
     SightingsTree = catalog["MapReq3"]
     sightings = om.values(SightingsTree, time_low, time_high) #Corresponde a una lista de árboles
-    final_list = lt.newList("ARRAY_LIST")
+    #final_list = lt.newList("ARRAY_LIST")
+    final_tree = om.newMap()
     
     sightings_size = lt.size(sightings)
     pos = 1
@@ -330,14 +340,35 @@ def REQ3(catalog, time_low, time_high):
 
         while i <= sublist_size: #El número de ciclos depende del número de avistamientos en la misma hora:minuto
             sighting = lt.getElement(sublist, i)
-            lt.addLast(final_list, sighting)
+            #lt.addLast(final_list, sighting)
+            om.put(final_tree, sighting["datetime"], sighting)
             i += 1
 
         pos += 1
 
-    num_sightings = lt.size(final_list)
+    num_sightings = om.size(final_tree)   #lt.size(final_list)
+    min_list, max_list = processInfoREQ3(final_tree, )
 
-    return final_list, num_sightings
+    return min_list, max_list, num_sightings
+
+
+def processInfoREQ3(info_tree):
+    """
+    Filtra los primeros y últimos 3 avistamientos en el rango y los retorna en una lista
+    """
+
+    size = om.size(info_tree)
+
+    min = om.minKey(info_tree)
+    min_3 = om.select(info_tree, 2)
+    max = om.maxKey(info_tree)
+    max_3 = om.select(info_tree, size-3)
+
+    min_list = om.values(info_tree, min, min_3)
+    max_list = om.values(info_tree, max_3, max)
+
+    return min_list, max_list
+
 
 
 #Requerimiento 4
