@@ -177,7 +177,7 @@ def printReq3Table(lst_min, lst_max):
 
 def printReq4Table(lst):
     """
-    Imprime las tablas del Requerimiento 4
+    Imprime la tabla del Requerimiento 4
     """
     headers = ["datetime", "city", "country", "shape", "duration (seconds)"]
     table = []
@@ -206,42 +206,39 @@ def printReq4Table(lst):
     print(tabulate(table, headers, tablefmt="grid"))
 
 
-def printReq5Table(most_expensive, oldest):
+def printReq5Table(lst):
     """
-    #Imprime las tablas del Requerimiento 5
+    Imprime la tabla del Requerimientos 5
     """
-    headers = ['ObjectID','Title','ArtistsNames',"Medium","Date","Dimensions","Classification","TransCost (USD)"]
-    table1 = []
-    table2 = []
+    headers = ["datetime", "city", "country", "shape", "duration (seconds)", "latitude", "longitude"]
+    table = []
 
-    for i in range(5):
-        artwork1 = stack.pop(most_expensive)
-        c11 = adjustlenght(artwork1["ObjectID"],8)
-        c12 = adjustlenght(artwork1["Title"],20)
-        c13 = adjustlenght(artwork1["ArtistsNames"],18)
-        c14 = adjustlenght(artwork1["Medium"],15)
-        c15 = artwork1["Date"]
-        c16 = adjustlenght(artwork1["Dimensions"],15)
-        c17 = adjustlenght(artwork1["Classification"],10)
-        c18 = artwork1["TransCost"]
-        table1.append([c11,c12,c13,c14,c15,c16,c17,c18])
+    #Primeros elementos
+    for pos in range(1,4):
+        sighting = lt.getElement(lst, pos)
+        c1 = sighting["datetime"]
+        c2 = sighting["city"]
+        c3 = sighting["country"]
+        c4 = sighting["shape"]
+        c5 = sighting["duration (seconds)"]
+        c6 = sighting["latitude"]
+        c7 = sighting["longitude"]
+        table.append([c1,c2,c3,c4,c5,c6,c7])
 
-        artwork2 = stack.pop(oldest)
-        c21 = adjustlenght(artwork2["ObjectID"],8)
-        c22 = adjustlenght(artwork2["Title"],20)
-        c23 = adjustlenght(artwork2["ArtistsNames"],18)
-        c24 = adjustlenght(artwork2["Medium"],15)
-        c25 = artwork2["Date"]
-        c26 = adjustlenght(artwork2["Dimensions"],15)
-        c27 = adjustlenght(artwork2["Classification"],10)
-        c28 = artwork2["TransCost"]
-        table2.append([c21,c22,c23,c24,c25,c26,c27,c28])
+    #Últimos elementos
+    for x in range(2, -1,-1):
+        pos = lt.size(lst) - x
+        sighting = lt.getElement(lst, pos)
+        c1 = sighting["datetime"]
+        c2 = sighting["city"]
+        c3 = sighting["country"]
+        c4 = sighting["shape"]
+        c5 = sighting["duration (seconds)"]
+        c6 = sighting["latitude"]
+        c7 = sighting["longitude"]
+        table.append([c1,c2,c3,c4,c5,c6,c7])
 
-    print("\n Las 5 obras más costosas de transportar son: ")
-    print(tabulate(table1, headers, tablefmt="grid"))
-    print("\n\n Las 5 obras más antiguas a transportar son: ")
-    print(tabulate(table2, headers, tablefmt="grid"))
-
+    print(tabulate(table, headers, tablefmt="grid"))
 
 
 catalog = None
@@ -254,8 +251,8 @@ while True:
     inputs = input('Seleccione una opción para continuar\n')
 
     if int(inputs) == 1:
-        #file_size = input("Ingrese el sufijo del archivo que desea utilizar (small, large, 10pct...): ")
-        file_size = "small"
+        file_size = input("Ingrese el sufijo del archivo que desea utilizar (small, large, 10pct...): ")
+        #file_size = "large"
 
         #Cargar archivos
         print("\nCargando información de los archivos ....")
@@ -270,6 +267,7 @@ while True:
         
         
 
+    #Laboratorio 8
     elif int(inputs) == 3:
         height = om.height(catalog["MapReq1.1"])
         size = om.size(catalog["MapReq1.1"])
@@ -281,7 +279,10 @@ while True:
 
     #Requerimiento 1
     elif int(inputs) == 10:
-        city = input("\nIngrese el nombre de la ciudad a consultar: ")
+        #city = input("\nIngrese el nombre de la ciudad a consultar: ")
+
+        #Para pruebas
+        city = "las vegas"
 
         start_time = process_time()
         req1, num_sightings = controller.REQ1(catalog, city)
@@ -315,8 +316,12 @@ while True:
         
     #Requerimiento 3
     elif int(inputs) == 30:
-        time_low = "20:45"
-        time_high = "23:15"
+        #time_low = input("Ingrese la hora inferior en formato HH:MM ")
+        #time_high = input("Ingrese la hora superior en formato HH:MM ")
+
+        #Para pruebas - peor caso
+        time_low = "00:00"
+        time_high = "23:59"
 
         start_time = process_time()
         req3_min, req3_max, num_sightings = controller.REQ3(catalog, time_low, time_high)
@@ -333,8 +338,12 @@ while True:
 
     #Requerimiento 4
     elif int(inputs) == 40:
-        date_low = "1945-08-06"
-        date_high = "1984-11-15"
+        #date_low = input("Ingrese la fecha inferior en formato AAAA-MM-DD: ")
+        #date_high = input("Ingrese la fecha superior en formato AAAA-MM-DD: ")
+
+        #Para pruebas - peor caso
+        date_low = "1906-11-11"
+        date_high = "2014-05-08"
 
         start_time = process_time()
         req4, num_sightings = controller.REQ4(catalog, date_low, date_high)
@@ -351,23 +360,28 @@ while True:
 
     #Requerimiento 5
     elif int(inputs) == 50:
-        LongitudeInitial = -109.03
-        LongitudeFinal = 45.00
-        LatitudeInitial = -92.15
-        LatitudeFinal = 120.00
-        #LongitudeInitial = float(input("Por favor ingrese la longitud inicial con dos cifras decimales: "))
-        #LongitudeFinal = float(input("Por favor ingrese la longitud final con dos cifras decimales: "))
-        #LatitudeInitial = float(input("Por favor ingrese la latitud inicial con dos cifras decimales: "))
-        #LatitudeFinal = float(input("Por favor ingrese la latitud final con dos cifras decimales: "))
+        #longitudeInitial = float(input("Por favor ingrese la longitud inicial con dos cifras decimales: "))
+        #longitudeFinal = float(input("Por favor ingrese la longitud final con dos cifras decimales: "))
+        #latitudeInitial = float(input("Por favor ingrese la latitud inicial con dos cifras decimales: "))
+        #latitudeFinal = float(input("Por favor ingrese la latitud final con dos cifras decimales: "))
+        
+        #Para pruebas - peor caso
+        longitudeInitial = -176.66
+        longitudeFinal = 178.44
+        latitudeInitial = -82.86
+        latitudeFinal = 72.7
+
         start_time = process_time()
-        NumberOfSightings, ListFinal = controller.REQ5(catalog, LongitudeInitial, LongitudeFinal, LatitudeInitial, LatitudeFinal)
+        NumberOfSightings,req5 = controller.REQ5(catalog, longitudeInitial, longitudeFinal,
+                                                          latitudeInitial, latitudeFinal)
         stop_time = process_time()
         running_time = (stop_time - start_time)*1000
 
         print("\n\n=============== Requerimiento Número 5 ===============")
         print("Tiempo de ejecución: " + str(running_time) + " milisegundos\n")
-        print("Se encontraron "+str(NumberOfSightings)+ " avistamientos dentro del area definida")
-
+        print("Se encontraron "+str(NumberOfSightings)+ " avistamientos dentro del área definida")
+        printReq5Table(req5)
+        
 
 
     else:

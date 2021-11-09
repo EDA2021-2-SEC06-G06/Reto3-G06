@@ -200,7 +200,7 @@ def keySet(rbt):
         Exception
     """
     try:
-        klist = lt.newList('SINGLE_LINKED', rbt['cmpfunction'])
+        klist = lt.newList('ARRAY_LIST', rbt['cmpfunction'])
         klist = keySetTree(rbt['root'], klist)
         return klist
     except Exception as exp:
@@ -218,7 +218,7 @@ def valueSet(rbt):
         Exception
     """
     try:
-        vlist = lt.newList('SINGLE_LINKED', rbt['cmpfunction'])
+        vlist = lt.newList('ARRAY_LIST', rbt['cmpfunction'])
         vlist = valueSetTree(rbt['root'], vlist)
         return vlist
     except Exception as exp:
@@ -422,7 +422,7 @@ def keys(rbt, keylo, keyhi):
         Exception
     """
     try:
-        lstkeys = lt.newList('SINGLELINKED', rbt['cmpfunction'])
+        lstkeys = lt.newList('ARRAY_LIST', rbt['cmpfunction'])
         lstkeys = keysRange(rbt['root'], keylo, keyhi, lstkeys,
                             rbt['cmpfunction'])
         return lstkeys

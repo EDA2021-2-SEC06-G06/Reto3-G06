@@ -34,12 +34,11 @@ def loadSightings(catalog, file_size):
     artistsfile = cf.data_dir + 'UFOS-utf8-' + file_size + '.csv'
     input_file = csv.DictReader(open(artistsfile, encoding='utf-8'))
     for sighting in input_file:
-        model.AddCitiesTreeREQ1(catalog, sighting)
-        #model.AddCitiesMapREQ1(catalog, sighting)
+        model.AddCitiesREQ1(catalog, sighting)
         model.AddTimesREQ3(catalog, sighting)
         model.AddDatesREQ4(catalog, sighting)
         model.AddDurationTreeREQ2(catalog, sighting)
-        model.AddLongitudeREQ5(catalog, sighting)
+        model.AddLongitudesREQ5(catalog, sighting)
 
 
 # ==============================================

@@ -25,16 +25,13 @@ def newCatalog():
     """
     Inicializa el catálogo de avistamientos
     """
-    catalog = {"MapReq1.1": None,       #Estructura principal es un árbol binario
-               "MapReq1.2": None,      #Estructura principal es un hashmap
+    catalog = {"MapReq1": None,      
                "MapReq3": None,
                "MapReq4": None,        #Estructura principal es un hashmap
                "MapReq2.1": None,
                "MapReq5": None}      
 
-    catalog["MapReq1.1"] = om.newMap(omaptype="RBT")
-
-    catalog["MapReq1.2"] = mp.newMap(1000,
+    catalog["MapReq1"] = mp.newMap(1000,
                                      maptype='PROBING',
                                      loadfactor=0.5)
 
@@ -52,30 +49,11 @@ def newCatalog():
 # ==============================================
 # Funciones para agregar informacion al catalogo
 # ============================================
-def AddCitiesTreeREQ1(catalog, sighting):
-    """
-    Crea un árbol cuyos nodos son de la forma 'key'= city , 'value'= árbol de avistamientos ordenados por datetime
-    """
-    CitiesTree = catalog["MapReq1.1"]
-    sighting_data = sightingData(sighting)
-    city = sighting["city"]
-    entry = om.get(CitiesTree, city)
-
-    if entry is None:           #Se crea la llave y el árbol de avistamientos
-        city_info = om.newMap()
-        om.put(city_info, sighting_data["datetime"], sighting_data)
-        om.put(CitiesTree, city, city_info)
-
-    else:                       #Se añade el avistamiento en la ciudad ya existente 
-        city_info = me.getValue(entry)
-        om.put(city_info, sighting_data["datetime"], sighting_data)
-
-
-def AddCitiesMapREQ1(catalog, sighting):
+def AddCitiesREQ1(catalog, sighting):
     """
     Crea una tabla de hash de la forma 'key'= city , 'value'= árbol de avistamientos ordenados por datetime
     """
-    CitiesMap = catalog["MapReq1.2"]
+    CitiesMap = catalog["MapReq1"]
     sighting_data = sightingData(sighting)
     city = sighting["city"]
     exists_city= mp.contains(CitiesMap, city)
@@ -160,32 +138,36 @@ def AddDurationTreeREQ2(catalog, sighting):
             lt.addLast(CountryInfo, DataInThisCase)
        
 
-def AddLongitudeREQ5(catalog, sighting):
-    TreeOfLongitud_L=catalog["MapReq5"]
-    LongitudeWRound=float(sighting["longitude"])
-    Longitude=round(LongitudeWRound, 2)
-    LatitudeWRound=float(sighting["latitude"])
-    Latitude=round(LatitudeWRound, 2)
-    EntryLongitude=om.get(TreeOfLongitud_L,Longitude)
-    if EntryLongitude is None:
-        LatitudInfo=om.newMap(omaptype="RBT")
-        ListOfData = lt.newList("ARRAY_LIST")
-        ListOfDataNecessary = DataNecessaryREQ5(sighting, Longitude, Latitude)
-        lt.addLast(ListOfData, ListOfDataNecessary)
-        om.put(LatitudInfo, Latitude, ListOfData)
-        om.put(TreeOfLongitud_L, Longitude, LatitudInfo)
+def AddLongitudesREQ5(catalog, sighting):
+    """
+    Crea un árbol cuyos nodos son de la forma 'key'= longitud, 'value'= árbol de avistamientos según latitud
+    """
+    LongitudeTree = catalog["MapReq5"]
+    longitude = round(float(sighting["longitude"]),2)
+    latitude = round(float(sighting["latitude"]),2)
+
+    sighting_data = sightingData(sighting)
+    longitude_entry = om.get(LongitudeTree, longitude)
+
+    if longitude_entry is None:
+        LatitudeTree = om.newMap(omaptype="RBT")
+        sightings_list = lt.newList("ARRAY_LIST")
+        lt.addLast(sightings_list, sighting_data)
+        om.put(LatitudeTree, latitude, sightings_list)
+        om.put(LongitudeTree, longitude, LatitudeTree)
+
     else:
-        LatitudeTree= me.getValue(EntryLongitude)
-        EntryLatitude = om.get(LatitudeTree, Latitude)
-        if EntryLatitude is None:
-            ListOfData = lt.newList("ARRAY_LIST")
-            ListOfDataNecessary=DataNecessaryREQ5(sighting, Longitude, Latitude)
-            lt.addLast(ListOfData, ListOfDataNecessary)
-            om.put(LatitudeTree, Latitude, ListOfData)
+        LatitudeTree= me.getValue(longitude_entry)
+        latitude_entry = om.get(LatitudeTree, latitude)
+
+        if latitude_entry is None:
+            sightings_list = lt.newList("ARRAY_LIST")
+            lt.addLast(sightings_list, sighting_data)
+            om.put(LatitudeTree, latitude, sightings_list)
+
         else:
-            LatitudeDataList = me.getValue(EntryLatitude)
-            DataInthisCase = DataNecessaryREQ5(sighting, Longitude, Latitude)
-            lt.addLast(LatitudeDataList, DataInthisCase)
+            sightings_list = me.getValue(latitude_entry)
+            lt.addLast(sightings_list, sighting_data)
 
 
 
@@ -201,7 +183,9 @@ def sightingData(sighting):
                      "city": sighting["city"],
                      "country": sighting["country"],
                      "shape": sighting["shape"],
-                     "duration (seconds)": sighting["duration (seconds)"]}
+                     "duration (seconds)": sighting["duration (seconds)"],
+                     "longitude": round(float(sighting["longitude"]),2),
+                     "latitude": round(float(sighting["latitude"]),2)}
 
     return sighting_data
 
@@ -215,25 +199,13 @@ def DataNecessaryREQ2(sighting, Country_City):
     return ListFinalREQ2
 
 
-def DataNecessaryREQ5(sighting, Longitude, Latitude):
-    City = sighting["city"]
-    Country = sighting["country"]
-    City_Country = City+"-"+Country
-    ListFinalREQ5 = lt.newList("ARRAY_LIST")
-    lt.addLast(ListFinalREQ5, sighting["datetime"])
-    lt.addLast(ListFinalREQ5, City_Country)
-    lt.addLast(ListFinalREQ5, sighting["duration (seconds)"])
-    lt.addLast(ListFinalREQ5, sighting["shape"])
-    lt.addLast(ListFinalREQ5, Longitude)
-    lt.addLast(ListFinalREQ5, Latitude)
-    return ListFinalREQ5
-
-
 
 # ==============================================
 # Funciones de consulta
 # ==============================================
-def addFirst(tree, lst, x):
+
+#Requerimiento 1
+def addFirstREQ1(tree, lst, x):
     """
     Añade los primeros "x" elementos de un árbol a una lista
     Importante: "x" debe ser mayor que 1
@@ -257,7 +229,7 @@ def addFirst(tree, lst, x):
         pos += 1
 
 
-def addLast(tree, lst, x):
+def addLastREQ1(tree, lst, x):
     """
     Añade los últimos "x" elementos de un árbol a una lista
     Importante: "x" debe ser mayor que 1
@@ -284,21 +256,19 @@ def addLast(tree, lst, x):
             pos += 1
     
 
-
-#Requerimiento 1
 def REQ1(catalog, city):
     """
     Crea una lista con los primeros y últimos 3 avistamientos de una ciudad dada organizados según fecha
     """
-    CitiesMap = catalog["MapReq1.1"]
-    city_entry = om.get(CitiesMap, city)
+    CitiesMap = catalog["MapReq1"]
+    city_entry = mp.get(CitiesMap, city)
     sightings_tree = me.getValue(city_entry)
 
     first_last_elem = lt.newList("ARRAYLIST")
     num_sightings = om.size(sightings_tree)
 
-    addFirst(sightings_tree, first_last_elem, 3)
-    addLast(sightings_tree, first_last_elem, 3)
+    addFirstREQ1(sightings_tree, first_last_elem, 3)
+    addLastREQ1(sightings_tree, first_last_elem, 3)
 
     return first_last_elem, num_sightings
 
@@ -370,7 +340,6 @@ def processInfoREQ3(info_tree):
     return min_list, max_list
 
 
-
 #Requerimiento 4
 def REQ4(catalog, date_low, date_high):
     """
@@ -401,40 +370,38 @@ def REQ4(catalog, date_low, date_high):
 
 
 #Requerimiento 5
-def REQ5(catalog, longitudeInitial, LongitudeFinal, LatitudeInitial, LatitudeFinal):   #Falta ordenar poor latitud
-    pos=1
-    ListFinal=lt.newList("ARRAY_LIST")
-    TreeOfLongitude = catalog["MapReq5"]
-    ListOfLatitudeR= om.values(TreeOfLongitude, longitudeInitial, LongitudeFinal)
-    while pos<=lt.size(ListOfLatitudeR):
-        latitude = lt.getElement(ListOfLatitudeR, pos)
-        for keyAtMoment in lt.iterator(om.keySet(latitude)):                  #Esto es O(1) Solo hay un key
-            if keyAtMoment>=LatitudeInitial and keyAtMoment<=LatitudeFinal:
-                EntryLatitude= om.get(latitude, keyAtMoment)
-                DataFinal = me.getValue(EntryLatitude)
-                i=1
-                if lt.size(DataFinal)>1:
-                    while i<=lt.size(DataFinal):
-                        Element=lt.getElement(DataFinal, i)
-                        lt.addLast(ListFinal, Element)
-                        i+=1
+def REQ5(catalog, longitudeInitial, longitudeFinal, latitudeInitial, latitudeFinal):
+
+    LongitudeTree = catalog["MapReq5"]
+    longitudesInRange = om.values(LongitudeTree, longitudeInitial, longitudeFinal)
+    
+    longitudes_size = lt.size(longitudesInRange)
+    ListFinal = lt.newList("ARRAY_LIST")
+    pos_longitude = 1
+
+    while pos_longitude <= longitudes_size:
+        LatitudeTree = lt.getElement(longitudesInRange, pos_longitude)
+        latitudesInRange = om.values(LatitudeTree, latitudeInitial, latitudeFinal)
+        latitudes_size = lt.size(latitudesInRange)
+        pos_latitude = 1
+
+        while pos_latitude <= latitudes_size:
+            sublist = lt.getElement(latitudesInRange, pos_latitude)
+            sublist_size = lt.size(sublist)
+            i = 1
+
+            while i <= sublist_size:
+                sighting = lt.getElement(sublist, i)
+                lt.addLast(ListFinal, sighting)
                 
-                else:
-                    Element=lt.getElement(DataFinal, 1)
-                    lt.addLast(ListFinal, Element)
+                i += 1
+
+            pos_latitude += 1
+
+        pos_longitude+=1
             
 
-        pos+=1
     NumberOfSightings = lt.size(ListFinal)
+
     return NumberOfSightings, ListFinal
 
-
-
-# ================================================================
-# Funciones de comparación
-# ================================================================
-
-
-# ==============================
-# Funciones de ordenamiento
-# ==============================
