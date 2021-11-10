@@ -215,7 +215,7 @@ def printReq5Table(lst):
     for pos in range(1,4):
         sighting = lt.getElement(lst, pos)
         c1 = sighting["datetime"]
-        c2 = sighting["city"]
+        c2 = adjustlenght(sighting["city"], 20)
         c3 = sighting["country"]
         c4 = sighting["shape"]
         c5 = sighting["duration (seconds)"]
@@ -228,7 +228,7 @@ def printReq5Table(lst):
         pos = lt.size(lst) - x
         sighting = lt.getElement(lst, pos)
         c1 = sighting["datetime"]
-        c2 = sighting["city"]
+        c2 = adjustlenght(sighting["city"], 20)
         c3 = sighting["country"]
         c4 = sighting["shape"]
         c5 = sighting["duration (seconds)"]
@@ -267,8 +267,8 @@ while True:
 
     #Laboratorio 8
     elif int(inputs) == 3:
-        height = om.height(catalog["MapReq1.1"])
-        size = om.size(catalog["MapReq1.1"])
+        height = om.height(catalog["MapLab8"])
+        size = om.size(catalog["MapLab8"])
 
         print("\n\nLa altura es: " + str(height))
         print("El número de elementos (# de ciudades) es: " + str(size))
