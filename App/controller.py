@@ -39,6 +39,7 @@ def loadSightings(catalog, file_size):
         model.AddDatesREQ4(catalog, sighting)
         model.AddDurationTreeREQ2(catalog, sighting)
         model.AddLongitudesREQ5(catalog, sighting)
+        model.AddCitiesLab8(catalog, sighting)
 
 
 # ==============================================

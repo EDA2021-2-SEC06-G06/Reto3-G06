@@ -25,11 +25,14 @@ def newCatalog():
     """
     Inicializa el catálogo de avistamientos
     """
-    catalog = {"MapReq1": None,      
+    catalog = {"MapLab8": None,
+               "MapReq1": None,      
                "MapReq3": None,
                "MapReq4": None,        #Estructura principal es un hashmap
                "MapReq2.1": None,
-               "MapReq5": None}      
+               "MapReq5": None}     
+
+    catalog["MapLab8"] = om.newMap() 
 
     catalog["MapReq1"] = mp.newMap(1000,
                                      maptype='PROBING',
@@ -79,13 +82,13 @@ def AddTimesREQ3(catalog, sighting):
     entry = om.get(SightingsTree, time)
     
     if entry is None:           #Se crea la llave y la lista de avistamientos
-        time_info = om.newMap()
-        om.put(time_info, sighting_data["datetime"], sighting_data)
+        time_info = lt.newList("ARRAY_LIST")
+        lt.addLast(time_info, sighting_data)
         om.put(SightingsTree, time, time_info)
 
     else:                       #Se añade el avistamiento en la hora:minuto ya existente 
         time_info = me.getValue(entry)
-        om.put(time_info, sighting_data["datetime"], sighting_data)
+        lt.addLast(time_info, sighting_data)
 
 
 def AddDatesREQ4(catalog, sighting):
@@ -168,6 +171,24 @@ def AddLongitudesREQ5(catalog, sighting):
         else:
             sightings_list = me.getValue(latitude_entry)
             lt.addLast(sightings_list, sighting_data)
+
+
+def AddCitiesLab8(catalog, sighting):
+    """
+    Crea un árbol cuyos nodos son de la forma 'key'= city , 'value'= árbol de avistamientos ordenados por datetime
+    """
+    CitiesTree = catalog["MapLab8"]
+    sighting_data = sightingData(sighting)
+    city = sighting["city"]
+    entry = om.get(CitiesTree, city)
+
+    if entry is None:           #Se crea la llave y el árbol de avistamientos
+        city_info = om.newMap()
+        om.put(city_info, sighting_data["datetime"], sighting_data)
+        om.put(CitiesTree, city, city_info)
+    else:                       #Se añade el avistamiento en la ciudad ya existente 
+        city_info = me.getValue(entry)
+        om.put(city_info, sighting_data["datetime"], sighting_data)
 
 
 
@@ -296,28 +317,28 @@ def REQ3(catalog, time_low, time_high):
     """
     SightingsTree = catalog["MapReq3"]
     sightings = om.values(SightingsTree, time_low, time_high) #Corresponde a una lista de árboles
-    #final_list = lt.newList("ARRAY_LIST")
     final_tree = om.newMap()
+    num_sightings = 0
     
     sightings_size = lt.size(sightings)
     pos = 1
-
+    
     while pos <= sightings_size: #El máximo de ciclos realizados es num_parejas_hora_minuto
-        subtree = lt.getElement(sightings, pos)
-        sublist = om.valueSet(subtree)
-        sublist_size = lt.size(sublist)
+        sightings_list = lt.getElement(sightings, pos)
+        list_size = lt.size(sightings_list)
         i = 1
 
-        while i <= sublist_size: #El número de ciclos depende del número de avistamientos en la misma hora:minuto
-            sighting = lt.getElement(sublist, i)
-            #lt.addLast(final_list, sighting)
-            om.put(final_tree, sighting["datetime"], sighting)
+        while i <= list_size: #El número de ciclos depende del número de avistamientos en la misma hora:minuto
+            sighting = lt.getElement(sightings_list, i)
+            om.put(final_tree, sighting["datetime"], sighting) #2log(n) en el peor caso (según la diapositiva de clase)
+            num_sightings += 1
             i += 1
-
+            
         pos += 1
+    
+    #En conjunto, las dos iteraciones realizan num_avistamientos en el peor caso
 
-    num_sightings = om.size(final_tree)   #lt.size(final_list)
-    min_list, max_list = processInfoREQ3(final_tree, )
+    min_list, max_list = processInfoREQ3(final_tree)  #O(log(n))
 
     return min_list, max_list, num_sightings
 
@@ -329,13 +350,13 @@ def processInfoREQ3(info_tree):
 
     size = om.size(info_tree)
 
-    min = om.minKey(info_tree)
-    min_3 = om.select(info_tree, 2)
-    max = om.maxKey(info_tree)
-    max_3 = om.select(info_tree, size-3)
+    min = om.minKey(info_tree) #log(n)
+    min_3 = om.select(info_tree, 2) #log(n)
+    max = om.maxKey(info_tree) #log(n)
+    max_3 = om.select(info_tree, size-3) #log(n)
 
-    min_list = om.values(info_tree, min, min_3)
-    max_list = om.values(info_tree, max_3, max)
+    min_list = om.values(info_tree, min, min_3) #log(n+3)
+    max_list = om.values(info_tree, max_3, max) #log(n+3)
 
     return min_list, max_list
 
@@ -371,7 +392,9 @@ def REQ4(catalog, date_low, date_high):
 
 #Requerimiento 5
 def REQ5(catalog, longitudeInitial, longitudeFinal, latitudeInitial, latitudeFinal):
-
+    """
+    Devuelve una lista con los avistamientos en el rango de coordenadas dado
+    """
     LongitudeTree = catalog["MapReq5"]
     longitudesInRange = om.values(LongitudeTree, longitudeInitial, longitudeFinal)
     
