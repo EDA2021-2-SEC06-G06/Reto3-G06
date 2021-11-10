@@ -280,7 +280,7 @@ while True:
         #city = input("\nIngrese el nombre de la ciudad a consultar: ")
 
         #Para pruebas
-        city = "las vegas"
+        city = "phoenix"
 
         start_time = process_time()
         req1, num_sightings = controller.REQ1(catalog, city)
@@ -323,6 +323,27 @@ while True:
 
         start_time = process_time()
         req3_min, req3_max, num_sightings = controller.REQ3(catalog, time_low, time_high)
+        stop_time = process_time()
+        running_time = (stop_time - start_time)*1000
+
+        print("\n\n=============== Requerimiento Número 3 ===============")
+        print("Tiempo de ejecución: " + str(running_time) + " milisegundos")
+
+        print("\nHubo " + str(num_sightings) + " avistamientos entre las " + time_low + " y las " + time_high)
+        printReq3Table(req3_min, req3_max)
+
+
+
+    elif int(inputs) == 31:
+        #time_low = input("Ingrese la hora inferior en formato HH:MM ")
+        #time_high = input("Ingrese la hora superior en formato HH:MM ")
+
+        #Para pruebas - peor caso
+        time_low = "00:00"
+        time_high = "23:59"
+
+        start_time = process_time()
+        req3_min, req3_max, num_sightings = controller.REQ32(catalog, time_low, time_high)
         stop_time = process_time()
         running_time = (stop_time - start_time)*1000
 

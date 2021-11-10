@@ -72,7 +72,7 @@ def AddCitiesREQ1(catalog, sighting):
         om.put(city_info, sighting_data["datetime"], sighting_data)
 
 
-def AddTimesREQ3(catalog, sighting):
+def AddTimesREQ31(catalog, sighting):
     """
     Crea un árbol cuyos nodos son de la forma 'key'= HH:MM, 'value'= lista de avistamientos
     """
@@ -89,6 +89,57 @@ def AddTimesREQ3(catalog, sighting):
     else:                       #Se añade el avistamiento en la hora:minuto ya existente 
         time_info = me.getValue(entry)
         lt.addLast(time_info, sighting_data)
+
+
+def AddTimesREQ3(catalog, sighting):
+    """
+    Crea un árbol cuyos nodos son de la forma 'key'= HH:MM, 'value'= lista de avistamientos
+    """
+    SightingsTree = catalog["MapReq3"]
+    sighting_data = sightingData(sighting)
+    time = datetime.strftime(sighting_data["datetime"], "%H:%M")
+    entry = om.get(SightingsTree, time)
+    
+    if entry is None:           #Se crea la llave y la lista de avistamientos
+        time_map = mp.newMap(maptype="PROBING", loadfactor=0.5)
+        time_tree = om.newMap(omaptype="RBT")
+        sightings_list = lt.newList("ARRAY_LIST")
+        lt.addLast(sightings_list, sighting_data)
+
+        om.put(time_tree, sighting["datetime"], sightings_list)
+        mp.put(time_map, "time_tree", time_tree)
+        mp.put(time_map, "time_info", None)
+
+        om.put(SightingsTree, time, time_map)
+
+
+    else:                       #Se añade el avistamiento en la hora:minuto ya existente 
+        time_map = me.getValue(entry)
+        time_tree = me.getValue(mp.get(time_map, "time_tree"))
+
+        tree_entry = om.get(time_tree, sighting["datetime"])
+
+        if tree_entry is None:
+            sightings_list = lt.newList("ARRAY_LIST")
+            lt.addLast(sightings_list, sighting_data)
+            om.put(time_tree, sighting["datetime"], sightings_list)
+
+        else:
+            sightings_list = me.getValue(tree_entry)
+            lt.addLast(sightings_list, sighting_data)
+
+        mp.put(time_map, "time_info", None)
+        
+
+def AddDatesListsREQ3(root):
+
+    if root is not None:
+        time_map = me.getValue(root)
+        time_tree = me.getValue(mp.get(time_map, "time_tree"))
+        mp.put(time_map, "time_info", om.valueSet(time_tree))
+
+        AddDatesListsREQ3(root["left"])
+        AddDatesListsREQ3(root["right"])
 
 
 def AddDatesREQ4(catalog, sighting):
@@ -372,7 +423,7 @@ def REQ3(catalog, time_low, time_high):
 
 def processInfoREQ3(info_tree):
     """
-    Filtra los primeros y últimos 3 avistamientos en el rango y los retorna en una lista
+    Filtra los primeros y últimos 3 avistamientos en el rango y los retorna en listas
     """
 
     size = om.size(info_tree)
@@ -384,6 +435,222 @@ def processInfoREQ3(info_tree):
 
     min_list = om.values(info_tree, min, min_3) #log(n+3)
     max_list = om.values(info_tree, max_3, max) #log(n+3)
+
+    return min_list, max_list
+
+
+
+#Requerimiento 3 - Segunda Versión
+def createHashMapsREQ3():
+    #Mapa de mínimos
+    min_hashmap = mp.newMap(maptype="PROBING", loadfactor=0.5)
+    min_list = lt.newList("ARRAY_LIST")
+    mp.put(min_hashmap, "capacity", 0)
+    mp.put(min_hashmap, "max_date", None)
+    mp.put(min_hashmap, "min_list", min_list)
+
+
+    #Mapa de máximos
+    max_hashmap = mp.newMap(maptype="PROBING", loadfactor=0.5)
+    max_list = lt.newList("ARRAY_LIST")
+    mp.put(max_hashmap, "capacity", 0)
+    mp.put(max_hashmap, "min_date", None)
+    mp.put(max_hashmap, "max_list", max_list)
+
+    return min_hashmap, max_hashmap
+
+
+def getDateSighting(min_list, date):
+    pos = 1
+
+    while pos <= 3:
+        replacing_sighting = lt.getElement(min_list, pos)
+
+        if replacing_sighting["datetime"] == date:
+            break
+
+        pos += 1
+    
+    return pos
+
+
+def getMaxMinDate(lst, func):
+    first_sighting = lt.getElement(lst, 1)
+    searched_date = first_sighting["datetime"]
+    pos = 2
+
+    while pos <= 3:
+        sighting = lt.getElement(lst, pos)
+
+        if (sighting["datetime"] > searched_date) and (func==1):
+            searched_date = sighting["datetime"]
+
+        if (sighting["datetime"] < searched_date) and (func==2):
+            searched_date = sighting["datetime"]
+
+        pos += 1
+
+    return searched_date
+
+
+def addMinList(min_hashmap, sighting):
+    
+    capacity = me.getValue(mp.get(min_hashmap, "capacity"))
+    sighting_date = sighting["datetime"]
+    max_date = me.getValue(mp.get(min_hashmap, "max_date"))
+    min_list = me.getValue(mp.get(min_hashmap, "min_list"))
+
+    if capacity < 3:
+        lt.addLast(min_list, sighting)
+
+        if capacity == 0:
+            mp.put(min_hashmap, "max_date", sighting_date)
+
+        elif sighting_date > max_date:
+            mp.put(min_hashmap, "max_date", sighting_date)
+
+        capacity += 1
+
+        mp.put(min_hashmap, "capacity", capacity)
+        
+
+    elif sighting_date < max_date:
+        replacing_pos = getDateSighting(min_list, max_date)
+        lt.changeInfo(min_list, replacing_pos, sighting)
+
+        max_date = getMaxMinDate(min_list, 1)
+        mp.put(min_hashmap, "max_date", max_date)
+
+
+def addMaxList(max_hashmap, sighting):
+    
+    capacity = me.getValue(mp.get(max_hashmap, "capacity"))
+    sighting_date = sighting["datetime"]
+    min_date = me.getValue(mp.get(max_hashmap, "min_date"))
+    max_list = me.getValue(mp.get(max_hashmap, "max_list"))
+
+    if capacity < 3:
+        lt.addLast(max_list, sighting)
+
+        if capacity == 0:
+            mp.put(max_hashmap, "min_date", sighting_date)
+
+        elif sighting_date < min_date:
+            mp.put(max_hashmap, "min_date", sighting_date)
+
+        capacity += 1
+
+        mp.put(max_hashmap, "capacity", capacity)
+        
+
+    elif sighting_date > min_date:
+        replacing_pos = getDateSighting(max_list, min_date)
+        lt.changeInfo(max_list, replacing_pos, sighting)
+
+        min_date = getMaxMinDate(max_list, 2)
+        mp.put(max_hashmap, "min_date", min_date)
+
+
+def REQ31(catalog, time_low, time_high):
+    """
+    Devuelve una lista con los avistamientos entre una hora time_low y una hora time_high
+    """
+    SightingsTree = catalog["MapReq3"]
+    sightings = om.values(SightingsTree, time_low, time_high) #Corresponde a una lista de árboles
+    min_hashmap, max_hashmap = createHashMapsREQ3()
+    num_sightings = 0
+    
+    sightings_size = lt.size(sightings)
+    pos = 1
+    
+    while pos <= sightings_size: #El máximo de ciclos realizados es num_parejas_hora_minuto
+        sightings_list = lt.getElement(sightings, pos)
+        list_size = lt.size(sightings_list)
+        i = 1
+
+        while i <= list_size: #El número de ciclos depende del número de avistamientos en la misma hora:minuto
+            sighting = lt.getElement(sightings_list, i)
+            addMinList(min_hashmap, sighting)
+            addMaxList(max_hashmap, sighting)
+            num_sightings += 1
+            i += 1
+            
+        pos += 1
+    
+    #En conjunto, las dos iteraciones realizan num_avistamientos + num_parejas_hora_minuto en el peor caso
+
+    #min_list, max_list = processInfoREQ3(final_tree)
+    min_list = me.getValue(mp.get(min_hashmap, "min_list"))
+    max_list = me.getValue(mp.get(max_hashmap, "max_list"))
+
+    mso.sort(min_list, cmpDates) #constante porque size(min_list) siempre es 3
+    mso.sort(max_list, cmpDates) #constante porque size(min_list) siempre es 3
+
+    return min_list, max_list, num_sightings
+
+
+
+#Requerimiento 3 - Tercera Versión
+def REQ32(catalog, time_low, time_high):
+    """
+    Devuelve una lista con los avistamientos entre una hora time_low y una hora time_high
+    """
+    SightingsTree = catalog["MapReq3"]
+    sightings = om.values(SightingsTree, time_low, time_high) #Corresponde a una lista de árboles
+    final_list = lt.newList("ARRAY_LIST")
+    num_sightings = 0
+    
+    sightings_size = lt.size(sightings)
+    pos = 1
+    
+    while pos <= sightings_size: #El máximo de ciclos realizados es num_parejas_hora_minuto
+        sightings_map = lt.getElement(sightings, pos)
+        sightings_list = me.getValue(mp.get(sightings_map, "time_info"))
+        list_size = lt.size(sightings_list)
+        i = 1
+        
+        while i <= list_size: #El número de ciclos depende del número de avistamientos en la misma hora:minuto
+            sublist = lt.getElement(sightings_list, i)
+            sublist_size = lt.size(sublist)
+            j=1
+
+            while j <= sublist_size:
+                sighting = lt.getElement(sublist, j)
+                lt.addLast(final_list, sighting)
+                num_sightings += 1
+
+                j+= 1
+                
+            i += 1
+            
+        pos += 1
+    
+    #En conjunto, las dos iteraciones realizan num_avistamientos en el peor caso
+
+    min_list, max_list = processInfoREQ3(final_list)  #O(1)
+
+    return min_list, max_list, num_sightings
+
+
+def processInfoREQ3(final_list):
+    """
+    Filtra los primeros y últimos 3 avistamientos en el rango y los retorna en listas
+    """
+
+    min_list = lt.newList("ARRAY_LIST")
+    max_list = lt.newList("ARRAY_LIST")
+
+    size = lt.size(final_list)
+
+    #Añadir Mínimos
+    lt.addLast(min_list, lt.getElement(final_list, 1))
+    lt.addLast(min_list, lt.getElement(final_list, 2))
+    lt.addLast(min_list, lt.getElement(final_list, 3))
+
+    #Añadir Máximos
+    lt.addLast(max_list, lt.getElement(final_list, size-2))
+    lt.addLast(max_list, lt.getElement(final_list, size-1))
+    lt.addLast(max_list, lt.getElement(final_list, size))
 
     return min_list, max_list
 
@@ -455,3 +722,11 @@ def REQ5(catalog, longitudeInitial, longitudeFinal, latitudeInitial, latitudeFin
 
     return NumberOfSightings, ListFinal
 
+
+
+# ==============================================
+# Funciones de comparación
+# ==============================================
+
+def cmpDates(sighting1, sighting2):
+    return sighting1["datetime"] < sighting2["datetime"]
