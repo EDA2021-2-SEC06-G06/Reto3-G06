@@ -59,12 +59,6 @@ def REQ2(catalog, timeInitial, timeFinal):
 def REQ3(catalog, time_low, time_high):
     return model.REQ3(catalog, time_low, time_high)
 
-def REQ31(catalog, time_low, time_high):
-    return model.REQ31(catalog, time_low, time_high)
-
-def REQ32(catalog, time_low, time_high):
-    return model.REQ32(catalog, time_low, time_high)
-
 #Requerimiento 4
 def REQ4(catalog, date_low, date_high):
     return model.REQ4(catalog, date_low, date_high)
