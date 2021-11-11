@@ -277,10 +277,10 @@ while True:
 
     #Requerimiento 1
     elif int(inputs) == 10:
-        #city = input("\nIngrese el nombre de la ciudad a consultar: ")
+        city = input("\nIngrese el nombre de la ciudad a consultar: ")
 
         #Para pruebas
-        city = "phoenix"
+        #city = "phoenix"
 
         start_time = process_time()
         req1, num_sightings = controller.REQ1(catalog, city)
@@ -314,12 +314,12 @@ while True:
         
     #Requerimiento 3
     elif int(inputs) == 30:
-        #time_low = input("Ingrese la hora inferior en formato HH:MM ")
-        #time_high = input("Ingrese la hora superior en formato HH:MM ")
+        time_low = input("Ingrese la hora inferior en formato HH:MM ")
+        time_high = input("Ingrese la hora superior en formato HH:MM ")
 
         #Para pruebas - peor caso
-        time_low = "00:00"
-        time_high = "23:59"
+        #time_low = "00:00"
+        #time_high = "23:59"
 
         start_time = process_time()
         req3_min, req3_max, num_sightings = controller.REQ3(catalog, time_low, time_high)
@@ -336,12 +336,12 @@ while True:
 
     #Requerimiento 4
     elif int(inputs) == 40:
-        #date_low = input("Ingrese la fecha inferior en formato AAAA-MM-DD: ")
-        #date_high = input("Ingrese la fecha superior en formato AAAA-MM-DD: ")
+        date_low = input("Ingrese la fecha inferior en formato AAAA-MM-DD: ")
+        date_high = input("Ingrese la fecha superior en formato AAAA-MM-DD: ")
 
         #Para pruebas - peor caso
-        date_low = "1906-11-11"
-        date_high = "2014-05-08"
+        #date_low = "1906-11-11"
+        #date_high = "2014-05-08"
 
         start_time = process_time()
         req4, num_sightings = controller.REQ4(catalog, date_low, date_high)

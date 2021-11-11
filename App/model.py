@@ -9,13 +9,11 @@ Daniel Hernández Pineda
 
 import config as cf
 from datetime import datetime
-from DISClib.ADT import stack
 from DISClib.ADT import list as lt
 from DISClib.ADT import orderedmap as om
 from DISClib.ADT import map as mp
 from DISClib.Algorithms.Trees import traversal as re
 from DISClib.DataStructures import mapentry as me
-from DISClib.Algorithms.Sorting import mergesort as mso
 assert cf
 
 # ==============================================
@@ -70,25 +68,6 @@ def AddCitiesREQ1(catalog, sighting):
         entry = mp.get(CitiesMap, city)
         city_info = me.getValue(entry)
         om.put(city_info, sighting_data["datetime"], sighting_data)
-
-
-def AddTimesREQ31(catalog, sighting):
-    """
-    Crea un árbol cuyos nodos son de la forma 'key'= HH:MM, 'value'= lista de avistamientos
-    """
-    SightingsTree = catalog["MapReq3"]
-    sighting_data = sightingData(sighting)
-    time = datetime.strftime(sighting_data["datetime"], "%H:%M")
-    entry = om.get(SightingsTree, time)
-    
-    if entry is None:           #Se crea la llave y la lista de avistamientos
-        time_info = lt.newList("ARRAY_LIST")
-        lt.addLast(time_info, sighting_data)
-        om.put(SightingsTree, time, time_info)
-
-    else:                       #Se añade el avistamiento en la hora:minuto ya existente 
-        time_info = me.getValue(entry)
-        lt.addLast(time_info, sighting_data)
 
 
 def AddTimesREQ3(catalog, sighting):
@@ -277,52 +256,50 @@ def DataNecessaryREQ2(sighting, Country_City):
 # ==============================================
 
 #Requerimiento 1
-def addFirstREQ1(tree, lst, x):
+def addFirstREQ1(tree, lst):
     """
-    Añade los primeros "x" elementos de un árbol a una lista
-    Importante: "x" debe ser mayor que 1
+    Añade los primeros 3 elementos de un árbol a una lista
     """
-    tree_size = om.size(tree)
-    key_low = om.minKey(tree)
+    tree_size = om.size(tree) 
+    key_low = om.minKey(tree)                     #O(log(m))
 
-    if tree_size >= x:  #Para asegurarse de no generar errores con ciudades de pocos avistamientos
-        key_high = om.select(tree, (x - 1))
+    if tree_size >= 3:  #Para asegurarse de no generar errores con ciudades de pocos avistamientos
+        key_high = om.select(tree, 2)             #O(log(m))
     else:
-        key_high = om.maxKey(tree)
+        key_high = om.maxKey(tree)                #O(log(m))
 
-    elements = om.values(tree, key_low, key_high)
+    elements = om.values(tree, key_low, key_high) #O(log(m + 3))
     elements_size = lt.size(elements)
 
     #Se añaden los elementos de la lista "elements" a la lista "lst"
     pos = 1
-    while pos <= elements_size: #O(1) porque elements_size es siempre igual a "x", y el máximo "x" requerido es 5
+    while pos <= elements_size: #O(1) porque elements_size es siempre igual a 3
         sighting = lt.getElement(elements, pos) #O(1) porque "elements" es un ARRAY_LIST (modificación en rbt.py)
         lt.addLast(lst, sighting)
         pos += 1
 
 
-def addLastREQ1(tree, lst, x):
+def addLastREQ1(tree, lst):
     """
-    Añade los últimos "x" elementos de un árbol a una lista
-    Importante: "x" debe ser mayor que 1
+    Añade los últimos 3 elementos de un árbol a una lista
     """
     tree_size = om.size(tree)
 
-    if tree_size >= 2*x:  #Para asegurarse de no generar errores con ciudades de pocos avistamientos
-        key_low = om.select(tree, (tree_size - x))
-        key_high = om.maxKey(tree)
+    if tree_size >= 6:  #Para asegurarse de no generar errores con ciudades de pocos avistamientos
+        key_low = om.select(tree, (tree_size - 3))    #O(log(m))
+        key_high = om.maxKey(tree)                    #O(log(m))
 
-    elif tree_size>x and tree_size<2*x:
-        key_low = om.select(tree, x)
-        key_high = om.maxKey(tree) 
+    elif tree_size>3 and tree_size<6:
+        key_low = om.select(tree, 3)                  #O(log(m))
+        key_high = om.maxKey(tree)                    #O(log(m))
 
-    if tree_size>x:     #Para asegurarse de no repetir los elementos añadidos en addFirst()
-        elements = om.values(tree, key_low, key_high)
+    if tree_size>3:     #Para asegurarse de no repetir los elementos añadidos en addFirst()
+        elements = om.values(tree, key_low, key_high) #O(log(m + 3))
         elements_size = lt.size(elements)
 
         #Se añaden los elementos de la lista "elements" a la lista "lst"
         pos = 1
-        while pos <= elements_size: #O(1) porque elements_size es siempre igual a "x", y el máximo "x" requerido es 5
+        while pos <= elements_size: #O(1) porque elements_size es siempre igual a 3
             sighting = lt.getElement(elements, pos) #O(1) porque "elements" es un ARRAY_LIST (modificación en rbt.py)
             lt.addLast(lst, sighting)
             pos += 1
@@ -339,8 +316,8 @@ def REQ1(catalog, city):
     first_last_elem = lt.newList("ARRAYLIST")
     num_sightings = om.size(sightings_tree)
 
-    addFirstREQ1(sightings_tree, first_last_elem, 3)
-    addLastREQ1(sightings_tree, first_last_elem, 3)
+    addFirstREQ1(sightings_tree, first_last_elem)
+    addLastREQ1(sightings_tree, first_last_elem)
 
     return first_last_elem, num_sightings
 
@@ -394,36 +371,34 @@ def REQ3(catalog, time_low, time_high):
     Devuelve una lista con los avistamientos entre una hora time_low y una hora time_high
     """
     SightingsTree = catalog["MapReq3"]
-    sightings = om.values(SightingsTree, time_low, time_high) #Corresponde a una lista de árboles
+    sightings = om.values(SightingsTree, time_low, time_high) #Corresponde a una lista de árboles, O(log(n + x))
     final_list = lt.newList("ARRAY_LIST")
     num_sightings = 0
     
     sightings_size = lt.size(sightings)
     pos = 1
     
-    while pos <= sightings_size: #El máximo de ciclos realizados es num_parejas_hora_minuto
+    while pos <= sightings_size: #El máximo de ciclos realizados es x
         sightings_map = lt.getElement(sightings, pos)
         sightings_list = me.getValue(mp.get(sightings_map, "time_info"))
         list_size = lt.size(sightings_list)
         i = 1
         
-        while i <= list_size: #El número de ciclos depende del número de avistamientos en la misma hora:minuto
+        while i <= list_size: #En conjunto, este ciclo (y el que contiene) representan n recorridos en el peor caso
             sublist = lt.getElement(sightings_list, i)
             sublist_size = lt.size(sublist)
             j=1
 
-            while j <= sublist_size: #Número de ciclos depende de avistamientos con misma hora:minuto y misma fecha
+            while j <= sublist_size: 
                 sighting = lt.getElement(sublist, j)
                 lt.addLast(final_list, sighting)
                 num_sightings += 1
 
                 j+= 1
-                
             i += 1
-            
         pos += 1
     
-    #En conjunto, las dos iteraciones realizan num_avistamientos en el peor caso
+    #En conjunto, las dos iteraciones realizan n + x en el peor caso
 
     min_list, max_list = processInfoREQ3(final_list)  #O(1)
 
@@ -465,12 +440,12 @@ def REQ4(catalog, date_low, date_high):
     sightings_size = lt.size(sightings)
     pos = 1
 
-    while pos <= sightings_size: #El máximo de ciclos realizados es num_fechas
+    while pos <= sightings_size: #El máximo de ciclos realizados es z
         sublist = lt.getElement(sightings, pos)
         sublist_size = lt.size(sublist)
         i = 1
 
-        while i <= sublist_size: #El número de ciclos depende del número de avistamientos en la misma fecha
+        while i <= sublist_size: #En conjunto, realiza n recorridos en el peor caso (no por cada iteración de z)
             sighting = lt.getElement(sublist, i)
             lt.addLast(final_list, sighting)
             i += 1
@@ -514,7 +489,6 @@ def REQ5(catalog, longitudeInitial, longitudeFinal, latitudeInitial, latitudeFin
             pos_latitude += 1
 
         pos_longitude+=1
-            
 
     NumberOfSightings = lt.size(ListFinal)
 
